@@ -86,3 +86,8 @@ div#shopBtn:hover {
     color: #000000;
     background-color: #ffffff;
 }
+
+div#shopModal {
+    background-color: #ffffff;
+    width: 350px;
+}
