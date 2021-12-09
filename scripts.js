@@ -1,29 +1,29 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const clicker = document.querySelector("div#clicker");
-    const coinsSpan = document.querySelector("span#coins");
-    const cpsSpan = document.querySelector("span#cps");
-    const shopBtn = document.querySelector("div#shopBtn");
-    let shopModal = document.querySelector("div#shopModal")
+$(function() {
+    const clicker = $('div#clicker');
+    const coinsSpan = $('span#coins');
+    const cpsSpan = $('span#cps');
+    const shopBtn = $('div#shopBtn');
+    let shopModal = $('div#shopModal')
     let coins = 0;
     let cps = 0;
     let cpc = 1;
     const modifiers = {
         autoclicker: {
-            name: "AutoClicker",
+            name: 'AutoClicker',
             cost: 10,
             cps: 1,
             cpc:  0,
             costUpgradeRatio: 1.3
         },
         farm: {
-            name: "Farm",
+            name: 'Farm',
             cost: 100,
-            cps: 10,
+            cps: 5,
             cpc: 0,
             costUpgradeRatio: 1.2
         },
         golden_mouse: {
-            name: "Golden Mouse",
+            name: 'Golden Mouse',
             cost: 250,
             cps: 0,
             cpc: 2,
@@ -37,25 +37,26 @@ document.addEventListener("DOMContentLoaded", function() {
         golden_mouse: 10
     }
 
+    let html = '';
     for(let modifier in modifiers) {
-        shopModal.innerHTML += "<div class='modifier'><span>" + modifiers[modifier].name + ":</span><span id='cost'> Cost: " + modifiers[modifier].cost + "</span><span> CPS: " + modifiers[modifier].cps + "</span><span> CPC: " + modifiers[modifier].cpc + "</span><button class='buyBtn' data-modifier='" + modifier + "'>Buy</button></div>";
-        //console.log(modifier + ": Cost: " + modifiers[modifier].cost + ", Clicks per second: " + modifiers[modifier].cps + ", Coins per click: " + modifiers[modifier].cpc)
+        html += `<div class='modifier'><span>${modifiers[modifier].name}: </span><span id='cost' data-modifier='${modifier}'>Cost: ${modifiers[modifier].cost} </span><span>CPS: ${modifiers[modifier].cps}</span><span> CPC: ${modifiers[modifier].cpc}</span><button class='buyBtn' data-modifier='${modifier}'>Buy</button></div>`;
     }
+    shopModal.html(html);
 
-    document.querySelectorAll("button.buyBtn").forEach(function(n) {
-        n.addEventListener("click", function() {
-            if(coins >= modifiers[n.getAttribute("data-modifier")].cost) {
-                coins -= modifiers[n.getAttribute("data-modifier")].cost;
-                cps += modifiers[n.getAttribute("data-modifier")].cps;
-                cpc += modifiers[n.getAttribute("data-modifier")].cpc;
-                modifiers[n.getAttribute("data-modifier")].cost = Math.round(modifiers[n.getAttribute("data-modifier")].cost * modifiers[n.getAttribute("data-modifier")].costUpgradeRatio);
-                document.querySelector("span#cost").innerText = modifiers[n.getAttribute("data-modifier")].cost;
+    $('button.buyBtn').each(function () {
+        $(this).click(function() {
+            if(coins >= modifiers[$(this).data('modifier')].cost) {
+                coins -= modifiers[$(this).data('modifier')].cost;
+                cps += modifiers[$(this).data('modifier')].cps;
+                cpc += modifiers[$(this).data('modifier')].cpc;
+                modifiers[$(this).data('modifier')].cost = Math.round(modifiers[$(this).data('modifier')].cost * modifiers[$(this).data('modifier')].costUpgradeRatio);
+                $(`span#cost[data-modifier='${$(this).data('modifier')}']`).text(`Cost: ${modifiers[$(this).data('modifier')].cost} `);
             }
         })
     });
 
-    clicker.addEventListener("click", function() {
-        coinsSpan.innerText = "Coins: " + (coins += cpc);
+    clicker.click(function() {
+        coinsSpan.text(`Coins: ${(coins += cpc)}`);
     });
 
     setInterval(function() {
@@ -63,19 +64,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }, 1000);
 
     setInterval(function() {
-        cpsSpan.innerText = "CPS: " + cps;
-        coinsSpan.innerText = "Coins: " + coins;
+        cpsSpan.text(`CPS: ${cps}`);
+        coinsSpan.text(`Coins: ${coins}`);
     })
 
     let shown = false;
-    shopBtn.addEventListener("click", function() {
+    shopBtn.click(function() {
         if(shown) {
-            document.querySelector("div#overlay").style.filter = "blur(0)";
-            shopModal.style.top = "-20%";
+            $('div#overlay').css('filter', 'blur(0)');
+            shopModal.css('top', '-20%');
             shown = false;
         } else {
-            document.querySelector("div#overlay").style.filter = "blur(15px)";
-            shopModal.style.top = "50%";
+            $('div#overlay').css('filter', 'blur(15px)');
+            shopModal.css('top', '50%');
             shown = true;
         }
     });
