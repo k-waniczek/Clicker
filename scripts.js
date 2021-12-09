@@ -3,7 +3,8 @@ $(function() {
     const coinsSpan = $('span#coins');
     const cpsSpan = $('span#cps');
     const shopBtn = $('div#shopBtn');
-    let shopModal = $('div#shopModal')
+    const overlay = $('div#overlay');
+    const shopModal = $('div#shopModal')
     let coins = 0;
     let cps = 0;
     let cpc = 1;
@@ -13,28 +14,31 @@ $(function() {
             cost: 10,
             cps: 1,
             cpc:  0,
-            costUpgradeRatio: 1.3
+            costUpgradeRatio: 1.3,
+            owned: 0,
+            costReductionRatio: 0.9,
+            costReductionEvery: 40
         },
         farm: {
             name: 'Farm',
             cost: 100,
             cps: 5,
             cpc: 0,
-            costUpgradeRatio: 1.2
+            costUpgradeRatio: 1.2,
+            owned: 0,
+            costReductionRatio: 0.8,
+            costReductionEvery: 20
         },
         golden_mouse: {
             name: 'Golden Mouse',
             cost: 250,
             cps: 0,
             cpc: 2,
-            costUpgradeRatio: 1.2
+            costUpgradeRatio: 1.2,
+            owned: 0,
+            costReductionRatio: 0.8,
+            costReductionEvery: 10
         }
-    }
-
-    let ownedModifiers = {
-        autoclicker: 5,
-        farm: 0,
-        golden_mouse: 10
     }
 
     let html = '';
@@ -46,11 +50,16 @@ $(function() {
     $('button.buyBtn').each(function () {
         $(this).click(function() {
             if(coins >= modifiers[$(this).data('modifier')].cost) {
-                coins -= modifiers[$(this).data('modifier')].cost;
-                cps += modifiers[$(this).data('modifier')].cps;
-                cpc += modifiers[$(this).data('modifier')].cpc;
-                modifiers[$(this).data('modifier')].cost = Math.round(modifiers[$(this).data('modifier')].cost * modifiers[$(this).data('modifier')].costUpgradeRatio);
-                $(`span#cost[data-modifier='${$(this).data('modifier')}']`).text(`Cost: ${modifiers[$(this).data('modifier')].cost} `);
+                let curModifier = modifiers[$(this).data('modifier')];
+                coins -= curModifier.cost;
+                cps += curModifier.cps;
+                cpc += curModifier.cpc;
+                curModifier.owned++;
+                curModifier.cost = Math.round(curModifier.cost * curModifier.costUpgradeRatio);
+                if(curModifier.owned % curModifier.costReductionEvery == 0) {
+                    curModifier.costUpgradeRatio = (curModifier.costUpgradeRatio - 1) * curModifier.costReductionRatio + 1;
+                }
+                $(`span#cost[data-modifier='${$(this).data('modifier')}']`).text(`Cost: ${curModifier.cost} `);
             }
         })
     });
@@ -68,14 +77,21 @@ $(function() {
         coinsSpan.text(`Coins: ${coins}`);
     })
 
+    //For testing
+    $("#autoclick").click(function() {
+        setInterval(function() {
+            coins += 1;
+        }, 1);
+    });
+
     let shown = false;
     shopBtn.click(function() {
         if(shown) {
-            $('div#overlay').css('filter', 'blur(0)');
+            overlay.css('filter', 'blur(0)');
             shopModal.css('top', '-20%');
             shown = false;
         } else {
-            $('div#overlay').css('filter', 'blur(15px)');
+            overlay.css('filter', 'blur(15px)');
             shopModal.css('top', '50%');
             shown = true;
         }
