@@ -5,7 +5,7 @@ $(function() {
     const shopBtn = $('div#shopBtn');
     const overlay = $('div#overlay');
     const shopModal = $('div#shopModal')
-    let coins = 0;
+    let coins = (parseInt(localStorage.getItem('coins')) > 0) ? parseInt(localStorage.getItem('coins')) : 0;
     let cps = 0;
     let cpc = 1;
     const modifiers = {
@@ -66,6 +66,12 @@ $(function() {
 
     clicker.click(function() {
         coinsSpan.text(`Coins: ${(coins += cpc)}`);
+        $('#audio').append('<audio src="click_sound.mp3" autoplay></audio>');
+        $('audio').each(function() {
+            $(this).on('ended', function() {
+                $(this).remove();
+            });
+        });
     });
 
     setInterval(function() {
@@ -75,10 +81,11 @@ $(function() {
     setInterval(function() {
         cpsSpan.text(`CPS: ${cps}`);
         coinsSpan.text(`Coins: ${coins}`);
-    })
+        localStorage.setItem('coins', coins);
+    }, 1)
 
     //For testing
-    $("#autoclick").click(function() {
+    $('#autoclick').click(function() {
         setInterval(function() {
             coins += 1;
         }, 1);
